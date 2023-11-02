@@ -1,33 +1,37 @@
 const jsonfile = require("jsonfile");
 const moment = require("moment");
 const simpleGit = require("simple-git");
+const fs = require("fs");
 
 const FILE_PATH = "./data.json";
 
 const getRandomInt = (min, max) => {
     min = Math.ceil(min);
     max = Math.floor(max);
-    return Math.floor(Math.random() * (max - min + 1)) + min; // Corrected Math.random()
+    return Math.floor(Math.random() * (max - min + 1)) + min;
 };
 
 const makeCommit = n => {
     if (n === 0) return simpleGit().push();
 
-    // Generate a random date within the past year
     const DATE = moment()
-        .subtract(getRandomInt(0, 365), "days") // Generate a date within the last 365 days
+        .subtract(getRandomInt(0, 365), "days")
+        .startOf('day')
         .format();
 
-    const date = {
+    const data = {
         date: DATE
     };
+
+    console.log(n);
+    console.log(data);
     console.log(DATE);
 
-    jsonfile.writeFile(FILE_PATH, date, () => {
+    fs.appendFile(FILE_PATH, JSON.stringify(data) + "\n", () => {
         simpleGit()
             .add([FILE_PATH])
-            .commit(DATE, { "--date": DATE }, makeCommit.bind(this, --n))
+            .commit(DATE, { "--date": DATE }, makeCommit.bind(this, --n));
     });
-}
+};
 
-makeCommit(100);
+makeCommit(200);
